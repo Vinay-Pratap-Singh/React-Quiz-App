@@ -1,90 +1,76 @@
 import { useState } from "react";
-import QuestionList from "./QuestionList";
+import QuestionList from "./QuestionList.js";
 
 const App = () => {
-  const [index, setIndex] = useState("0");
+  const [index, setIndex] = useState(0);
+  let [score, setScore] = useState(0);
+  const [showResult, setResult] = useState(true);
 
-  const [ques, setQues] = useState({ ...QuestionList[index] });
-  let defaultOption = ques.option[index];
-  const [userOption, setUserOption] = useState({ defaultOption });
-
+  // function to check the answer
   const checkAns = (event) => {
-    event.preventDefault();
-    if (userOption == ques.ans) {
-      console.log("Correct ans");
-    } else {
-      console.log("Incorrect Ans");
+    if (event.target.innerText == QuestionList[index].ans) {
+      setScore(score + 1);
     }
-
-    // moving the program to the next question
-    let newIndex = Number(index) + 1;
-    setIndex(newIndex);
-    console.log(index);
-    setUserOption(ques.option[index]);
-    setQues({ ...QuestionList[index] });
+    if (index + 1 < QuestionList.length) {
+      setIndex(index + 1);
+    } else {
+      setResult(true);
+    }
   };
 
-  const optionClicked = (event) => {
-    setUserOption(event.target.value);
+  // function to restart the game
+  const restart = () => {
+    setIndex(0);
+    setScore(0);
+    setResult(false);
   };
-
-  // console.log(QuestionList[0]);
 
   return (
-    <div className="border border-black w-full p-4 bg-cyan-800 text-white flex flex-col gap-4">
-      <h1>Question 1: {ques.ques}</h1>
-      {/* options section */}
-      <form className="flex flex-col gap-4" onSubmit={checkAns}>
-        <div>
-          <input
-            onChange={optionClicked}
-            type="radio"
-            id="option1"
-            name="options"
-            value={ques.option[0]}
-          />
-          <label htmlFor="option1"> {ques.option[0]}</label>
-        </div>
+    // main wrapper
+    <div className="h-screen w-full bg-gray-400 flex items-center justify-center">
+      {/* container for game */}
+      <div className="bg-gray-600 text-white py-6 px-14 rounded flex flex-col items-center gap-6 w-[80vw]">
+        <h1 className="text-3xl font-bold">Quiz App</h1>
 
-        <div>
-          <input
-            onChange={optionClicked}
-            type="radio"
-            id="option2"
-            name="options"
-            value={ques.option[1]}
-          />
-          <label htmlFor="option2"> {ques.option[1]}</label>
-        </div>
-
-        <div>
-          <input
-            onChange={optionClicked}
-            type="radio"
-            id="option3"
-            name="options"
-            value={ques.option[2]}
-          />
-          <label htmlFor="option3"> {ques.option[2]}</label>
-        </div>
-
-        <div>
-          <input
-            onChange={optionClicked}
-            type="radio"
-            id="option4"
-            name="options"
-            value={ques.option[3]}
-          />
-          <label htmlFor="option4"> {ques.option[3]}</label>
-        </div>
-
-        {/* button section for next and previous */}
-        <section className="flex items-center gap-6">
-          <button className="px-4 py-1 border">Prev</button>
-          <button className="px-4 py-1 border">Next</button>
-        </section>
-      </form>
+        {showResult ? (
+          <>
+            {/* Answer Card */}
+            <div className="flex flex-col gap-2 items-center justify-center font-semibold text-lg">
+              <p>
+                Your Total Score : <span className="font-bold text-green-500">{score}</span>
+              </p>
+              <p>
+                Score Percentage :{" "}
+                <span className="font-bold text-green-500">{(score / QuestionList.length) * 100} %</span>
+              </p>
+              <button onClick={restart} className="bg-gray-700 px-4 py-1 rounded hover:bg-gray-800 hover:text-green-500">Restart Game</button>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* question card */}
+            <p>
+              Question {index + 1} of {QuestionList.length}
+            </p>
+            <h1 className="text-xl font-semibold border px-4 py-1 rounded bg-gray-700 w-full">
+              Question : {QuestionList[index].ques}
+            </h1>
+            <ul className="w-full">
+              {QuestionList[index].option.map((opt, ind) => {
+                return (
+                  <li
+                    className="border px-4 py-1 mb-2 rounded cursor-pointer hover:bg-gray-700 hover:border-black hover:text-green-500"
+                    onClick={checkAns}
+                    key={ind}
+                  >
+                    {opt}
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </div>
     </div>
   );
 };
